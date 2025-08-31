@@ -1,0 +1,84 @@
+services:
+
+  postgres-primary:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: payroll
+      PGDATA: /var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-primary-data:/var/lib/postgresql/data
+    networks:
+      - postgres-network
+
+  postgres-replica-1:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: payroll
+      REPLICA_ROLE: standby
+    depends_on:
+      - postgres-primary
+    command: ["/bin/bash", "-c", "until pg_basebackup -h postgres-primary -D /var/lib/postgresql/data -U admin -Fp -Xs -R -P; do sleep 1; done && docker-entrypoint.sh postgres"]
+    volumes:
+      - postgres-replica-1-data:/var/lib/postgresql/data
+    networks:
+      - postgres-network
+
+  postgres-replica-2:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: payroll
+      REPLICA_ROLE: standby
+    depends_on:
+      - postgres-primary
+    command: ["/bin/bash", "-c", "until pg_basebackup -h postgres-primary -D /var/lib/postgresql/data -U admin -Fp -Xs -R -P; do sleep 1; done && docker-entrypoint.sh postgres"]
+    volumes:
+      - postgres-replica-2-data:/var/lib/postgresql/data
+    networks:
+      - postgres-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres-primary
+    networks:
+      - postgres-network
+
+  redis:
+    image: redis:latest
+    restart: always
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - postgres-network
+
+volumes:
+  postgres-primary-data:
+  postgres-replica-1-data:
+  postgres-replica-2-data:
+  redis-data:
+
+networks:
+  postgres-network:

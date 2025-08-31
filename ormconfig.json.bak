@@ -1,0 +1,40 @@
+[
+  {
+    "name": "default",
+    "type": "postgres",
+    "host": "localhost",
+    "port": 5432,
+    "username": "admin",
+    "password": "password",
+    "database": "payroll",
+    "entities": [
+      "**/**/*.entity{.ts,.js}"
+    ],
+    "migrations": [
+      "dist/migrations/*{.ts,.js}"
+    ],
+    "cli": {
+      "migrationsDir": "src/migrations"
+    },
+    "synchronize": true
+  },
+  {
+    "name": "docker",
+    "type": "postgres",
+    "host": "localhost",
+    "port": 5432,
+    "username": "admin",
+    "password": "password",
+    "database": "payroll",
+    "entities": [
+      "**/**/*.entity{.ts,.js}"
+    ],
+    "migrations": [
+      "dist/migrations/*{.ts,.js}"
+    ],
+    "cli": {
+      "migrationsDir": "src/migrations"
+    },
+    "synchronize": true
+  }
+]
